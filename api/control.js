@@ -60,31 +60,41 @@ module.exports = async (req, res) => {
       const base = String(
         process.env.PUBLIC_BASE_URL || ""
       ).replace(/\/$/, "");
-
+    
       if (!base.startsWith("https://")) {
-
         return res.status(400).json({
           ok: false,
           error: "PUBLIC_BASE_URL phải là https://"
         });
       }
-
-      // Dùng trực tiếp Vercel Function.
-      // Không dùng /webhook rewrite ở giai đoạn test.
+    
       const webhookUrl = base + "/api/webhook";
-
+    
+      const secret = String(
+        process.env.WEBHOOK_SECRET || ""
+      ).trim();
+    
+      if (!secret) {
+        return res.status(400).json({
+          ok: false,
+          error: "Thiếu WEBHOOK_SECRET. Zalo yêu cầu secret_token khi setWebhook."
+        });
+      }
+    
       const body = {
-        url: webhookUrl
+        url: webhookUrl,
+        secret_token: secret
       };
-
+    
       const result = await zaloPost(
         "setWebhook",
         body
       );
-
+    
       return res.status(200).json({
         ...result,
-        requestedWebhookUrl: webhookUrl
+        requestedWebhookUrl: webhookUrl,
+        secretConfigured: true
       });
     }
 
