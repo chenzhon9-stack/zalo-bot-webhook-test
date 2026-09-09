@@ -1,8 +1,25 @@
-module.exports=async(req,res)=>{
- if(req.method!=="POST")return res.status(405).json({ok:false,error:"Method not allowed"});
- const expected=String(process.env.WEBHOOK_SECRET||"").trim();
- const supplied=String(req.headers["x-bot-api-secret-token"]||req.headers["x-webhook-secret"]||"").trim();
- if(expected&&supplied!==expected){console.log(JSON.stringify({type:"WEBHOOK_REJECTED",at:new Date().toISOString()}));return res.status(403).json({ok:false,error:"Invalid webhook secret"});}
- console.log(JSON.stringify({type:"WEBHOOK_RECEIVED",at:new Date().toISOString(),body:req.body||null}));
- return res.status(200).json({ok:true,message:"Webhook received"});
+module.exports = async (req, res) => {
+  const now = new Date().toISOString();
+
+  console.log("========== ZALO WEBHOOK ==========");
+  console.log("TIME:", now);
+  console.log("METHOD:", req.method);
+  console.log("HEADERS:", JSON.stringify(req.headers));
+  console.log("BODY:", JSON.stringify(req.body));
+  console.log("==================================");
+
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      ok: false,
+      error: "Method not allowed"
+    });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    received: true,
+    timestamp: now,
+    method: req.method,
+    hasBody: !!req.body
+  });
 };
