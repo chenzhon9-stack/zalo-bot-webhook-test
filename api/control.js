@@ -8,7 +8,9 @@ module.exports=async(req,res)=>{
   if(action==="setWebhook"){
    const base=String(process.env.PUBLIC_BASE_URL||"").replace(/\/$/,"");
    if(!base.startsWith("https://"))return res.status(400).json({ok:false,error:"PUBLIC_BASE_URL phải là https://"});
-   const body={url:base+"/webhook"};
+   const body = {
+     url: base + "/api/webhook"
+   };
    const secret=String(process.env.WEBHOOK_SECRET||"").trim();
    if(secret)body.secret_token=secret;
    const out=await zaloPost("setWebhook",body);
